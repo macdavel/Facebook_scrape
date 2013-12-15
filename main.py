@@ -1,9 +1,14 @@
 import os
+import tornado.httpserver
+import tornado.options
 import tornado.ioloop
 import tornado.web
 import pymongo
 from pymongo import MongoClient
 from pymongo import ASCENDING, DESCENDING
+
+from tornado.options import define, options
+define("port", default=5000, help="run on the given port", type=int)
 
 client  = MongoClient("mongodb://macdavel:fbdb@ds061158.mongolab.com:61158/fbdb")
 db = client.fbdb
@@ -392,8 +397,8 @@ Pager = Pager()
 
 if __name__ == "__main__":
     __file__ = r"c:\\python27\\Groupp"
-    static_path = os.path.join(os.path.dirname(__file__), "Groupp\\static")
-    template_path = os.path.join(os.path.dirname(__file__), "Groupp\\template")
+    static_path = os.path.join(os.path.dirname(__file__), "static")
+    template_path = os.path.join(os.path.dirname(__file__), "template")
     app = tornado.web.Application([
     (r"/", MainHandler),(r"/recent", RecentHandler),(r"/employment", EmploymentHandler),(r"/personalcare", PersonalcareHandler),\
     (r"/housing", HousingHandler),(r"/cars", MotorHandler),(r"/electronics", ElectronicsHandler),\
@@ -401,6 +406,10 @@ if __name__ == "__main__":
     (r"/secretary", SecretarialHandler),(r"/it", ITHandler),(r"/accounting", AccountingHandler),
     (r"/clothing", ClothingHandler),(r"/perfumes", PerfumeHandler)
     ,],debug=True,static_path=static_path,template_path=template_path)
-
-    app.listen(8888)
+    
+    tornado.options.parse_command_line()
+    http_server = tornado.httpserver.HTTPServer(app())
+    http_server.listen(os.environ.get("PORT", 5000))
+    #app.listen(8888)
     tornado.ioloop.IOLoop.instance().start()
+
