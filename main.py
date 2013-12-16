@@ -54,7 +54,7 @@ class RecentHandler(tornado.web.RequestHandler):
             first_pagination = pages+2
         second_pagination = first_pagination+1
                     
-        her  = db.facebookdatabase.find().sort("created_time", DESCENDING).skip(first_pagination*50).limit(50)
+        her  = db.facebookdatabase.find().sort("created_time", DESCENDING).skip(first_pagination*50).limit(5)
         haha = []
         for i in her:
             
@@ -73,7 +73,7 @@ class RecentHandler(tornado.web.RequestHandler):
 
             hehe = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
             haha.append(hehe)
-        herere  = db.facebookdatabase.find().sort("created_time", DESCENDING).skip(second_pagination*50).limit(50)
+        herere  = db.facebookdatabase.find().sort("created_time", DESCENDING).skip(second_pagination*50).limit(5)
         hoho = []
         for me in herere:
             
