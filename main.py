@@ -410,6 +410,7 @@ if __name__ == "__main__":
     tornado.options.parse_command_line()
     #http_server = tornado.httpserver.HTTPServer(app())
     #http_server.listen(os.environ.get("PORT", 5000))
-    app.listen(8888)
+    app.listen(tornado.options.options.port)
+    #app.listen(8888)
     tornado.ioloop.IOLoop.instance().start()
 
