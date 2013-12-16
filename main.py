@@ -396,9 +396,9 @@ class PerfumeHandler(tornado.web.RequestHandler):
 Pager = Pager()
 
 if __name__ == "__main__":
-    __file__ = r"c:\\python27\\Groupp"
-    static_path = os.path.join(os.path.dirname(__file__), "static")
-    template_path = os.path.join(os.path.dirname(__file__), "template")
+    path = os.getcwd()
+    static_path = os.path.join(path, "static")
+    template_path = os.path.join(path, "template")
     app = tornado.web.Application([
     (r"/", MainHandler),(r"/recent", RecentHandler),(r"/employment", EmploymentHandler),(r"/personalcare", PersonalcareHandler),\
     (r"/housing", HousingHandler),(r"/cars", MotorHandler),(r"/electronics", ElectronicsHandler),\
@@ -408,8 +408,8 @@ if __name__ == "__main__":
     ,],debug=True,static_path=static_path,template_path=template_path)
     
     tornado.options.parse_command_line()
-    http_server = tornado.httpserver.HTTPServer(app())
-    http_server.listen(os.environ.get("PORT", 5000))
-    #app.listen(8888)
+    #http_server = tornado.httpserver.HTTPServer(app())
+    #http_server.listen(os.environ.get("PORT", 5000))
+    app.listen(8888)
     tornado.ioloop.IOLoop.instance().start()
 
