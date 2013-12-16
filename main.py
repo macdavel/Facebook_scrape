@@ -97,7 +97,7 @@ class RecentHandler(tornado.web.RequestHandler):
 
 class EmploymentHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"employment"}).sort("created_time", DESCENDING).limit(50)
+        her  = db.facebookdatabase.find({"category":"employment"}).sort("created_time", DESCENDING).limit(5)
         people = []
         for i in her:
             
@@ -120,7 +120,7 @@ class EmploymentHandler(tornado.web.RequestHandler):
         self.render("2col_temp.html", title = "Employment", items=people,seconditems=people, section="Employment")
 class PersonalcareHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"clothing"}).sort("created_time", DESCENDING).limit(50)
+        her  = db.facebookdatabase.find({"category":"clothing"}).sort("created_time", DESCENDING).limit(5)
         haha = []
         for i in her:
             
@@ -143,7 +143,7 @@ class PersonalcareHandler(tornado.web.RequestHandler):
         
 class ElectronicsHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({u"category":"phones"}).sort("created_time", DESCENDING).limit(50)
+        her  = db.facebookdatabase.find({u"category":"phones"}).sort("created_time", DESCENDING).limit(5)
         haha = []
         for i in her:
             
@@ -166,7 +166,7 @@ class ElectronicsHandler(tornado.web.RequestHandler):
 
 class HousingHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"housing"}).sort("created_time", DESCENDING).limit(50)
+        her  = db.facebookdatabase.find({"category":"housing"}).sort("created_time", DESCENDING).limit(5)
         haha = []
         for i in her:
             
@@ -189,7 +189,7 @@ class HousingHandler(tornado.web.RequestHandler):
 
 class MotorHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"cars"}).sort("created_time", DESCENDING).limit(50)
+        her  = db.facebookdatabase.find({"category":"cars"}).sort("created_time", DESCENDING).limit(5)
         haha = []
         for i in her:
             
@@ -212,7 +212,7 @@ class MotorHandler(tornado.web.RequestHandler):
 
 class AccountingHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"accounting"}).sort("created_time", DESCENDING).limit(50)
+        her  = db.facebookdatabase.find({"category":"accounting"}).sort("created_time", DESCENDING).limit(5)
         haha = []
         for i in her:
             
@@ -235,7 +235,7 @@ class AccountingHandler(tornado.web.RequestHandler):
 
 class SecretarialHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"secretary"}).sort("created_time", DESCENDING).limit(50)
+        her  = db.facebookdatabase.find({"category":"secretary"}).sort("created_time", DESCENDING).limit(5)
         haha = []
         for i in her:
             
@@ -258,7 +258,7 @@ class SecretarialHandler(tornado.web.RequestHandler):
 
 class ITHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"technology"}).sort("created_time", DESCENDING).limit(50)
+        her  = db.facebookdatabase.find({"category":"technology"}).sort("created_time", DESCENDING).limit(5)
         haha = []
         for i in her:
             
@@ -281,7 +281,7 @@ class ITHandler(tornado.web.RequestHandler):
 
 class MarketingHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"marketing"}).sort("created_time", DESCENDING).limit(50)
+        her  = db.facebookdatabase.find({"category":"marketing"}).sort("created_time", DESCENDING).limit(5)
         haha = []
         for i in her:
             
@@ -304,7 +304,7 @@ class MarketingHandler(tornado.web.RequestHandler):
 
 class MobileHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":u"phones"}).sort("created_time", DESCENDING).limit(50)
+        her  = db.facebookdatabase.find({"category":u"phones"}).sort("created_time", DESCENDING).limit(5)
         haha = []
         for i in her:
             
@@ -327,7 +327,7 @@ class MobileHandler(tornado.web.RequestHandler):
 
 class LaptopHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"laptops"}).sort("created_time", DESCENDING).limit(50)
+        her  = db.facebookdatabase.find({"category":"laptops"}).sort("created_time", DESCENDING).limit(5)
         haha = []
         for i in her:
             
@@ -350,7 +350,7 @@ class LaptopHandler(tornado.web.RequestHandler):
 
 class ClothingHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"clothing"}).sort("created_time", DESCENDING).limit(50)
+        her  = db.facebookdatabase.find({"category":"clothing"}).sort("created_time", DESCENDING).limit(5)
         haha = []
         for i in her:
             
@@ -372,7 +372,7 @@ class ClothingHandler(tornado.web.RequestHandler):
         self.render("2col_temp.html", title = "Automobiles", items=haha,seconditems=haha, section = "Clothing")
 class PerfumeHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"perfumes"}).sort("created_time", DESCENDING).limit(50)
+        her  = db.facebookdatabase.find({"category":"perfumes"}).sort("created_time", DESCENDING).limit(5)
         haha = []
         for i in her:
             
