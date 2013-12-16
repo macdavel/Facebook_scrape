@@ -408,9 +408,9 @@ if __name__ == "__main__":
     ,],debug=True,static_path=static_path,template_path=template_path)
     
     tornado.options.parse_command_line()
-    #http_server = tornado.httpserver.HTTPServer(app())
-    #http_server.listen(os.environ.get("PORT", 5000))
-    app.listen(tornado.options.options.port)
+    http_server = tornado.httpserver.HTTPServer(app)
+    http_server.listen(os.environ.get("PORT", 5000))
+    #app.listen(tornado.options.options.port)
     #app.listen(8888)
     tornado.ioloop.IOLoop.instance().start()
 
