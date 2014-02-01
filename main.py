@@ -10,14 +10,36 @@ from pymongo import ASCENDING, DESCENDING
 from tornado.options import define, options
 define("port", default=5000, help="run on the given port", type=int)
 
-client  = MongoClient("mongodb://macdavel:fbdb@ds061158.mongolab.com:61158/fbdb")
-db = client.fbdb
+#client  = MongoClient("mongodb://macdavel:fbdb@ds061158.mongolab.com:61158/fbdb")
+#db = client.fbdb
 
+
+
+client  = MongoClient("localhost",27017)
+db = client.facebookdatabase
+
+#First we created a class pager for the recent posts
+#We only did pagination for recent posts because
+#it had a large number of posts
+#Our sorting algorithm did not yield many results and
+#it is a point of improvement for our project
+
+
+###
+#We use pager to keep track of what page we are on
+#could have done it with a variable aswell
 
 class Pager(object):
     def __init__(self):
         self.page = 0 
 
+
+#####
+#Once we get the posts from the database,we make them instances
+#Instead of passing the posts to the html template
+#We pass the instances because it is easier to access the info
+
+        
 class Post(object):
     def __init__(self,name, message,id_, picture,time):
         self.name = name
@@ -26,13 +48,36 @@ class Post(object):
         self.picture = picture
         self.time = time
 
+
+
+#The main Handles the home page
+#It is just static images here so nothing complicated required
 class MainHandler(tornado.web.RequestHandler):
     def get(self):           
         self.render("HOME.html", title="Home", )
 
+
+
+
+
+
+
+
 class RecentHandler(tornado.web.RequestHandler):
     
     def get(self):
+
+        #################
+#This is where the fun begins
+#First we start by checking for arguments for pagination
+#Our template creates two columns from the results hence
+#we have to iterate over two lists
+#This makes it difficult for pagination
+#Because you do not want the 50 results that were in column 2
+#to be in the first column of the next page
+#essentially you want to skip 2 pages
+#we decided to use a fancy algorithm for this
+#that is the pagination code
         page = self.get_arguments("page",None)
         if len(page) == 0:
             pages = Pager.page
@@ -53,12 +98,19 @@ class RecentHandler(tornado.web.RequestHandler):
         else:
             first_pagination = pages+2
         second_pagination = first_pagination+1
+
+        ############################################
+
+        ####
+        #we then go on to get a cursor from the database and use it
+        #to iterate over the posts and while iterating we create instances
+        #which are then passed into the template
                     
-        her  = db.facebookdatabase.find().sort("created_time", DESCENDING).skip(first_pagination*50).limit(5)
-        haha = []
-        for i in her:
+        raw_posts  = db.facebookdatabase.find().sort("created_time", DESCENDING).skip(first_pagination*50).limit(5)
+        post_instances = []
+        for i in raw_posts:
             
-            hehe = i[u"from"][u"name"]
+            name = i[u"from"][u"name"]
             try:
                 i[u"message"]
             except:
@@ -71,11 +123,15 @@ class RecentHandler(tornado.web.RequestHandler):
             idz =  "http://www.facebook.com/"+i[u"from"][u"id"]
 
 
-            hehe = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
-            haha.append(hehe)
-        herere  = db.facebookdatabase.find().sort("created_time", DESCENDING).skip(second_pagination*50).limit(5)
-        hoho = []
-        for me in herere:
+            name = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
+            post_instances.append(name)
+
+        ####
+        #We create two lists of instances
+        #Because our template displays the info in two column format
+        raw_postsere  = db.facebookdatabase.find().sort("created_time", DESCENDING).skip(second_pagination*50).limit(5)
+        post_instances_2 = []
+        for me in raw_postsere:
             
             you = me[u"from"][u"name"]
             try:
@@ -91,15 +147,25 @@ class RecentHandler(tornado.web.RequestHandler):
 
 
             you = Post(me[u"from"][u"name"],me[u"message"],idz,me[u"picture"],me[u"created_time"])
-            hoho.append(you)
-        self.render("2col_temp.html", title = "Automobiles", items=haha, seconditems=hoho, section="Recent Postings")
+            post_instances_2.append(you)
+        self.render("2col_temp.html", title = "Automobiles", items=post_instances, seconditems=post_instances_2, section="Recent Postings")
+
+
+
+
+
+        
+#################################################
+#This Process is repeated for all the pages on the website
+#########################################################
+
 
 
 class EmploymentHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"employment"}).sort("created_time", DESCENDING).limit(5)
+        raw_posts  = db.facebookdatabase.find({"category":"accounting"}).sort("created_time", DESCENDING).limit(5)
         people = []
-        for i in her:
+        for i in raw_posts:
             
             person = i[u"from"][u"name"]
             try:
@@ -113,18 +179,19 @@ class EmploymentHandler(tornado.web.RequestHandler):
                 i[u"picture"] = "http://crockpotladies.com/wp-content/uploads/2011/10/610x300xNo-Image-Available-610x300.jpg.pagespeed.ic.BuZqmFMIyd.jpg"
             idz =  "http://www.facebook.com/"+i[u"from"][u"id"]
 
-
-            #Use for loop for pagination
             person = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
             people.append(person)
         self.render("2col_temp.html", title = "Employment", items=people,seconditems=people, section="Employment")
+
+
+        
 class PersonalcareHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"clothing"}).sort("created_time", DESCENDING).limit(5)
-        haha = []
-        for i in her:
+        raw_posts  = db.facebookdatabase.find({"category":"clothing"}).sort("created_time", DESCENDING).limit(5)
+        post_instances = []
+        for i in raw_posts:
             
-            hehe = i[u"from"][u"name"]
+            name = i[u"from"][u"name"]
             try:
                 i[u"message"]
             except:
@@ -137,17 +204,17 @@ class PersonalcareHandler(tornado.web.RequestHandler):
             idz =  "http://www.facebook.com/"+i[u"from"][u"id"]
 
 
-            hehe = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
-            haha.append(hehe)
-        self.render("2col_temp.html", title = "Clothing", items=haha,seconditems=haha,section="Personal Care")
+            name = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
+            post_instances.append(name)
+        self.render("2col_temp.html", title = "Clothing", items=post_instances,seconditems=post_instances,section="Personal Care")
         
 class ElectronicsHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({u"category":"phones"}).sort("created_time", DESCENDING).limit(5)
-        haha = []
-        for i in her:
+        raw_posts  = db.facebookdatabase.find({u"category":"phones"}).sort("created_time", DESCENDING).limit(5)
+        post_instances = []
+        for i in raw_posts:
             
-            hehe = i[u"from"][u"name"]
+            name = i[u"from"][u"name"]
             try:
                 i[u"message"]
             except:
@@ -160,17 +227,17 @@ class ElectronicsHandler(tornado.web.RequestHandler):
             idz =  "http://www.facebook.com/"+i[u"from"][u"id"]
 
 
-            hehe = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
-            haha.append(hehe)
-        self.render("2col_temp.html", title = "Electronics", items=haha,seconditems=haha, section="Electronics")
+            name = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
+            post_instances.append(name)
+        self.render("2col_temp.html", title = "Electronics", items=post_instances,seconditems=post_instances, section="Electronics")
 
 class HousingHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"housing"}).sort("created_time", DESCENDING).limit(5)
-        haha = []
-        for i in her:
+        raw_posts  = db.facebookdatabase.find({"category":"housing"}).sort("created_time", DESCENDING).limit(5)
+        post_instances = []
+        for i in raw_posts:
             
-            hehe = i[u"from"][u"name"]
+            name = i[u"from"][u"name"]
             try:
                 i[u"message"]
             except:
@@ -183,17 +250,17 @@ class HousingHandler(tornado.web.RequestHandler):
             idz =  "http://www.facebook.com/"+i[u"from"][u"id"]
 
 
-            hehe = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
-            haha.append(hehe)
-        self.render("2col_temp.html", title = "Electronics", items=haha,seconditems=haha, section="Housing")
+            name = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
+            post_instances.append(name)
+        self.render("2col_temp.html", title = "Electronics", items=post_instances,seconditems=post_instances, section="Housing")
 
 class MotorHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"cars"}).sort("created_time", DESCENDING).limit(5)
-        haha = []
-        for i in her:
+        raw_posts  = db.facebookdatabase.find({"category":"cars"}).sort("created_time", DESCENDING).limit(5)
+        post_instances = []
+        for i in raw_posts:
             
-            hehe = i[u"from"][u"name"]
+            name = i[u"from"][u"name"]
             try:
                 i[u"message"]
             except:
@@ -206,17 +273,17 @@ class MotorHandler(tornado.web.RequestHandler):
             idz =  "http://www.facebook.com/"+i[u"from"][u"id"]
 
 
-            hehe = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
-            haha.append(hehe)
-        self.render("2col_temp.html", title = "Automobiles", items=haha, seconditems=haha, section="Motors")
+            name = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
+            post_instances.append(name)
+        self.render("2col_temp.html", title = "Automobiles", items=post_instances, seconditems=post_instances, section="Motors")
 
 class AccountingHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"accounting"}).sort("created_time", DESCENDING).limit(5)
-        haha = []
-        for i in her:
+        raw_posts  = db.facebookdatabase.find({"category":"accounting"}).sort("created_time", DESCENDING).limit(5)
+        post_instances = []
+        for i in raw_posts:
             
-            hehe = i[u"from"][u"name"]
+            name = i[u"from"][u"name"]
             try:
                 i[u"message"]
             except:
@@ -229,17 +296,17 @@ class AccountingHandler(tornado.web.RequestHandler):
             idz =  "http://www.facebook.com/"+i[u"from"][u"id"]
 
 
-            hehe = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
-            haha.append(hehe)
-        self.render("2col_temp.html", title = "Automobiles", items=haha, seconditems=haha,section="Accounting Jobs")
+            name = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
+            post_instances.append(name)
+        self.render("2col_temp.html", title = "Automobiles", items=post_instances, seconditems=post_instances,section="Accounting Jobs")
 
 class SecretarialHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"secretary"}).sort("created_time", DESCENDING).limit(5)
-        haha = []
-        for i in her:
+        raw_posts  = db.facebookdatabase.find({"category":"secretarial"}).sort("created_time", DESCENDING).limit(5)
+        post_instances = []
+        for i in raw_posts:
             
-            hehe = i[u"from"][u"name"]
+            name = i[u"from"][u"name"]
             try:
                 i[u"message"]
             except:
@@ -252,17 +319,17 @@ class SecretarialHandler(tornado.web.RequestHandler):
             idz =  "http://www.facebook.com/"+i[u"from"][u"id"]
 
 
-            hehe = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
-            haha.append(hehe)
-        self.render("2col_temp.html", title = "Automobiles", items=haha,seconditems=haha, section="Secretarial Jobs")
+            name = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
+            post_instances.append(name)
+        self.render("2col_temp.html", title = "Automobiles", items=post_instances,seconditems=post_instances, section="Secretarial Jobs")
 
 class ITHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"technology"}).sort("created_time", DESCENDING).limit(5)
-        haha = []
-        for i in her:
+        raw_posts  = db.facebookdatabase.find({"category":"technology"}).sort("created_time", DESCENDING).limit(5)
+        post_instances = []
+        for i in raw_posts:
             
-            hehe = i[u"from"][u"name"]
+            name = i[u"from"][u"name"]
             try:
                 i[u"message"]
             except:
@@ -275,17 +342,17 @@ class ITHandler(tornado.web.RequestHandler):
             idz =  "http://www.facebook.com/"+i[u"from"][u"id"]
 
 
-            hehe = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
-            haha.append(hehe)
-        self.render("2col_temp.html", title = "Automobiles", items=haha,seconditems=haha, section = "IT Jobs")
+            name = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
+            post_instances.append(name)
+        self.render("2col_temp.html", title = "Automobiles", items=post_instances,seconditems=post_instances, section = "IT Jobs")
 
 class MarketingHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"marketing"}).sort("created_time", DESCENDING).limit(5)
-        haha = []
-        for i in her:
+        raw_posts  = db.facebookdatabase.find({"category":"marketing"}).sort("created_time", DESCENDING).limit(5)
+        post_instances = []
+        for i in raw_posts:
             
-            hehe = i[u"from"][u"name"]
+            name = i[u"from"][u"name"]
             try:
                 i[u"message"]
             except:
@@ -298,17 +365,17 @@ class MarketingHandler(tornado.web.RequestHandler):
             idz =  "http://www.facebook.com/"+i[u"from"][u"id"]
 
 
-            hehe = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
-            haha.append(hehe)
-        self.render("2col_temp.html", title = "Automobiles", items=haha,seconditems=haha, section = "Marketing Jobs")
+            name = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
+            post_instances.append(name)
+        self.render("2col_temp.html", title = "Automobiles", items=post_instances,seconditems=post_instances, section = "Marketing Jobs")
 
 class MobileHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":u"phones"}).sort("created_time", DESCENDING).limit(5)
-        haha = []
-        for i in her:
+        raw_posts  = db.facebookdatabase.find({"category":u"phones"}).sort("created_time", DESCENDING).limit(5)
+        post_instances = []
+        for i in raw_posts:
             
-            hehe = i[u"from"][u"name"]
+            name = i[u"from"][u"name"]
             try:
                 i[u"message"]
             except:
@@ -321,17 +388,17 @@ class MobileHandler(tornado.web.RequestHandler):
             idz =  "http://www.facebook.com/"+i[u"from"][u"id"]
 
 
-            hehe = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
-            haha.append(hehe)
-        self.render("2col_temp.html", title = "Automobiles", items=haha,seconditems=haha ,section = "Mobile Phones")
+            name = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
+            post_instances.append(name)
+        self.render("2col_temp.html", title = "Automobiles", items=post_instances,seconditems=post_instances ,section = "Mobile Phones")
 
 class LaptopHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"laptops"}).sort("created_time", DESCENDING).limit(5)
-        haha = []
-        for i in her:
+        raw_posts  = db.facebookdatabase.find({"category":"laptops"}).sort("created_time", DESCENDING).limit(5)
+        post_instances = []
+        for i in raw_posts:
             
-            hehe = i[u"from"][u"name"]
+            name = i[u"from"][u"name"]
             try:
                 i[u"message"]
             except:
@@ -344,17 +411,17 @@ class LaptopHandler(tornado.web.RequestHandler):
             idz =  "http://www.facebook.com/"+i[u"from"][u"id"]
 
 
-            hehe = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
-            haha.append(hehe)
-        self.render("2col_temp.html", title = "Automobiles", items=haha,seconditems=haha ,section = "Computers")
+            name = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
+            post_instances.append(name)
+        self.render("2col_temp.html", title = "Automobiles", items=post_instances,seconditems=post_instances ,section = "Computers")
 
 class ClothingHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"clothing"}).sort("created_time", DESCENDING).limit(5)
-        haha = []
-        for i in her:
+        raw_posts  = db.facebookdatabase.find({"category":"clothing"}).sort("created_time", DESCENDING).limit(5)
+        post_instances = []
+        for i in raw_posts:
             
-            hehe = i[u"from"][u"name"]
+            name = i[u"from"][u"name"]
             try:
                 i[u"message"]
             except:
@@ -367,16 +434,16 @@ class ClothingHandler(tornado.web.RequestHandler):
             idz =  "http://www.facebook.com/"+i[u"from"][u"id"]
 
 
-            hehe = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
-            haha.append(hehe)
-        self.render("2col_temp.html", title = "Automobiles", items=haha,seconditems=haha, section = "Clothing")
+            name = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
+            post_instances.append(name)
+        self.render("2col_temp.html", title = "Automobiles", items=post_instances,seconditems=post_instances, section = "Clothing")
 class PerfumeHandler(tornado.web.RequestHandler):
     def get(self):
-        her  = db.facebookdatabase.find({"category":"perfumes"}).sort("created_time", DESCENDING).limit(5)
-        haha = []
-        for i in her:
+        raw_posts  = db.facebookdatabase.find({"category":"perfumes"}).sort("created_time", DESCENDING).limit(5)
+        post_instances = []
+        for i in raw_posts:
             
-            hehe = i[u"from"][u"name"]
+            name = i[u"from"][u"name"]
             try:
                 i[u"message"]
             except:
@@ -389,9 +456,9 @@ class PerfumeHandler(tornado.web.RequestHandler):
             idz =  "http://www.facebook.com/"+i[u"from"][u"id"]
 
 
-            hehe = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
-            haha.append(hehe)
-        self.render("2col_temp.html", title = "Automobiles", items=haha, seconditems=haha ,section = "Perfumes")
+            name = Post(i[u"from"][u"name"],i[u"message"],idz,i[u"picture"],i[u"created_time"])
+            post_instances.append(name)
+        self.render("2col_temp.html", title = "Automobiles", items=post_instances, seconditems=post_instances ,section = "Perfumes")
 
 Pager = Pager()
 
@@ -408,9 +475,9 @@ if __name__ == "__main__":
     ,],debug=True,static_path=static_path,template_path=template_path)
     
     tornado.options.parse_command_line()
-    http_server = tornado.httpserver.HTTPServer(app)
-    http_server.listen(os.environ.get("PORT", 5000))
-    #app.listen(tornado.options.options.port)
-    #app.listen(8888)
+    #http_server = tornado.httpserver.HTTPServer(app)
+    #http_server.listen(os.environ.get("PORT", 5000))
+    #app.listen(tornado.options.options.port) #These two commented out because of deployment to heroku
+    app.listen(8888)                           #uncomment for running on local machine
     tornado.ioloop.IOLoop.instance().start()
 
