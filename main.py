@@ -10,13 +10,13 @@ from pymongo import ASCENDING, DESCENDING
 from tornado.options import define, options
 define("port", default=5000, help="run on the given port", type=int)
 
-#client  = MongoClient("mongodb://macdavel:fbdb@ds061158.mongolab.com:61158/fbdb")
-#db = client.fbdb
+client  = MongoClient("mongodb://macdavel:fbdb@ds061158.mongolab.com:61158/fbdb")
+db = client.fbdb
 
 
 
-client  = MongoClient("localhost",27017)
-db = client.facebookdatabase
+#client  = MongoClient("localhost",27017)
+#db = client.facebookdatabase
 
 #First we created a class pager for the recent posts
 #We only did pagination for recent posts because
@@ -475,9 +475,9 @@ if __name__ == "__main__":
     ,],debug=True,static_path=static_path,template_path=template_path)
     
     tornado.options.parse_command_line()
-    #http_server = tornado.httpserver.HTTPServer(app)
-    #http_server.listen(os.environ.get("PORT", 5000))
-    #app.listen(tornado.options.options.port) #These two commented out because of deployment to heroku
-    app.listen(8888)                           #uncomment for running on local machine
-    tornado.ioloop.IOLoop.instance().start()
+    http_server = tornado.httpserver.HTTPServer(app)
+    http_server.listen(os.environ.get("PORT", 5000))
+    app.listen(tornado.options.options.port) #These two commented out because of deployment to heroku
+    #app.listen(8888)                           #uncomment for running on local machine
+    #tornado.ioloop.IOLoop.instance().start()
 
