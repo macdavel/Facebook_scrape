@@ -302,7 +302,7 @@ class AccountingHandler(tornado.web.RequestHandler):
 
 class SecretarialHandler(tornado.web.RequestHandler):
     def get(self):
-        raw_posts  = db.facebookdatabase.find({"category":"secretary"}).sort("created_time", DESCENDING).limit(5)
+        raw_posts  = db.facebookdatabase.find({"category":"secretarial"}).sort("created_time", DESCENDING).limit(5)
         post_instances = []
         for i in raw_posts:
             
