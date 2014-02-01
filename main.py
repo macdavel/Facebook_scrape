@@ -479,5 +479,5 @@ if __name__ == "__main__":
     http_server.listen(os.environ.get("PORT", 5000))
     app.listen(tornado.options.options.port) #These two commented out because of deployment to heroku
     #app.listen(8888)                           #uncomment for running on local machine
-    #tornado.ioloop.IOLoop.instance().start()
+    tornado.ioloop.IOLoop.instance().start()
 
