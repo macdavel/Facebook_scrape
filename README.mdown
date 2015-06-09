@@ -1,3 +1,1 @@
-This is the code that was uploaded to heroku
-Thus several things have been changed from our original code
-In order to make the code work in a local machine, uncomment like 475 and 476 in main.py
+The goal of this project was to scrape posts from facebook groups, sort them and display them on a website in order to combat the clutter on the feeds of large facebook groups
